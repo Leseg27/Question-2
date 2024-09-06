@@ -1,0 +1,217 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+// Abstract base class for library items
+abstract class LibraryItem {
+    private String title;
+    private String author;
+    private String genre;
+    private boolean available;
+    public LibraryItem(String title, String author, String genre) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.available = true; // Initially available
+    }
+    // Getters
+    public String getTitle() {
+        return title;
+    }
+    public String getAuthor() {
+        return author;
+    }
+    public String getGenre() {
+        return genre;
+    }
+    public boolean isAvailable() {
+        return available;
+    }
+    // Setter for availability
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+    // Abstract method for displaying item details
+    public abstract void displayDetails();
+}
+// Concrete class for books
+class Book extends LibraryItem {
+    private String isbn;
+    public Book(String title, String author, String genre, String isbn) {
+        super(title, author, genre);
+        this.isbn = isbn;
+    }
+    @Override
+    public void displayDetails() {
+        System.out.println("Title: " + getTitle());
+        System.out.println("Author: " + getAuthor());
+        System.out.println("Genre: " + getGenre());
+        System.out.println("ISBN: " + isbn);
+        System.out.println("Available: " + (isAvailable() ? "Yes" : "No"));
+    }
+}
+// Class to manage the library
+public class LibraryManagement {
+    private static ArrayList<LibraryItem> libraryItems = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) {
+        boolean running = true;
+        while (running) {
+            displayMenu();
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+            switch (choice) {
+                case 1:
+                    addBook();
+                    break;
+                case 2:
+                    searchBook();
+                    break;
+                case 3:
+                    checkOutBook();
+                    break;
+                case 4:
+                    returnBook();
+                    break;
+                case 5:
+                    generateReports();
+                    break;
+                case 6:
+                    running = false;
+                    System.out.println("Exiting Library Management System...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+    private static void displayMenu() {
+        System.out.println("\nLibrary Management System");
+        System.out.println("1) Add Book");
+        System.out.println("2) Search Book");
+        System.out.println("3) Check Out Book");
+        System.out.println("4) Return Book");
+        System.out.println("5) Generate Reports");
+        System.out.println("6) Exit");
+        System.out.print("Enter your choice: ");
+    }
+    private static void addBook() {
+        System.out.println("\nAdding a new Book:");
+        System.out.print("Enter Title: ");
+        String title = scanner.nextLine();
+        System.out.print("Enter Author: ");
+        String author = scanner.nextLine();
+        System.out.print("Enter Genre: ");
+        String genre = scanner.nextLine();
+        System.out.print("Enter ISBN: ");
+        String isbn = scanner.nextLine();
+        libraryItems.add(new Book(title, author, genre, isbn));
+        System.out.println("Book added successfully!");
+    }
+    private static void searchBook() {
+        System.out.println("\nSearch for a Book:");
+        System.out.println("1) Search by Title");
+        System.out.println("2) Search by Author");
+        System.out.println("3) Search by Genre");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        System.out.print("Enter search term: ");
+        String searchTerm = scanner.nextLine();
+        boolean found = false;
+        for (LibraryItem item : libraryItems) {
+            if (choice == 1 && item.getTitle().equalsIgnoreCase(searchTerm)) {
+                found = true;
+                item.displayDetails();
+            } else if (choice == 2 && item.getAuthor().equalsIgnoreCase(searchTerm)) {
+                found = true;
+                item.displayDetails();
+            } else if (choice == 3 && item.getGenre().equalsIgnoreCase(searchTerm)) {
+                found = true;
+                item.displayDetails();
+            }
+        }
+        if (!found) {
+            System.out.println("No books found matching your criteria.");
+        }
+    }
+    private static void checkOutBook() {
+        System.out.println("\nCheck Out a Book:");
+        System.out.print("Enter the ISBN of the book: ");
+        String isbn = scanner.nextLine();
+        boolean found = false;
+        for (LibraryItem item : libraryItems) {
+            if (item instanceof Book && ((Book) item).isbn.equals(isbn)) {
+                if (((Book) item).isAvailable()) {
+                    System.out.print("Enter borrower's name: ");
+                    String borrower = scanner.nextLine();
+                    // Here, you'd ideally store the borrower's name with the book
+                    // (maybe using a Loan class) for return tracking
+                    ((Book) item).setAvailable(false); // Mark as unavailable
+                    System.out.println("Book checked out successfully!");
+                    found = true;
+                    break;
+                } else {
+                    System.out.println("This book is currently unavailable.");
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            System.out.println("Book with ISBN " + isbn + " not found.");
+        }
+    }
+    private static void returnBook() {
+        System.out.println("\nReturn a Book:");
+        System.out.print("Enter the ISBN of the book: ");
+        String isbn = scanner.nextLine();
+        boolean found = false;
+        for (LibraryItem item : libraryItems) {
+            if (item instanceof Book && ((Book) item).isbn.equals(isbn)) {
+                ((Book) item).setAvailable(true); // Mark as available
+                System.out.println("Book returned successfully!");
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            System.out.println("Book with ISBN " + isbn + " not found.");
+        }
+    }
+    private static void generateReports() {
+        System.out.println("\nGenerating Reports:");
+        System.out.println("1) Available Books");
+        System.out.println("2) Overdue Books (Not Implemented)");
+        System.out.println("3) Most Popular Genres (Not Implemented)");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        switch (choice) {
+            case 1:
+                generateAvailableBooksReport();
+                break;
+            case 2:
+                // TODO: Implement overdue book report
+                System.out.println("Overdue book report functionality is not yet implemented.");
+                break;
+            case 3:
+                // TODO: Implement most popular genre report
+                System.out.println("Most popular genre report functionality is not yet implemented.");
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+    private static void generateAvailableBooksReport() {
+        System.out.println("\nAvailable Books Report:");
+        if (libraryItems.isEmpty()) {
+            System.out.println("No books in the library.");
+        } else {
+            for (LibraryItem item : libraryItems) {
+                if (item instanceof Book && ((Book) item).isAvailable()) {
+                    item.displayDetails();
+                    System.out.println("---------------------");
+                }
+            }
+        }
+    }
+}
